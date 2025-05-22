@@ -2,7 +2,7 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, PollAnswerHandler, ContextTypes
 
-TOKEN = os.getenv("8042821970:AAHsCv3OoKKf-JkyNzb9-kuJpPpehK-kgbI")
+#TOKEN = os.getenv("8042821970:AAHsCv3OoKKf-JkyNzb9-kuJpPpehK-kgbI")
 
 
 
@@ -68,7 +68,7 @@ async def handle_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await send_quiz(user_id, context, user_id)
 
 # Replace with your actual token
-# TOKEN = "8042821970:AAHsCv3OoKKf-JkyNzb9-kuJpPpehK-kgbI"
+TOKEN = "8042821970:AAHsCv3OoKKf-JkyNzb9-kuJpPpehK-kgbI"
 
 
 app = ApplicationBuilder().token(TOKEN).build()
