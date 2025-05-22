@@ -2,8 +2,6 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, PollAnswerHandler, ContextTypes
 
-#TOKEN = os.getenv("8042821970:AAHsCv3OoKKf-JkyNzb9-kuJpPpehK-kgbI")
-
 
 
 # Quiz data
@@ -1110,16 +1108,24 @@ quiz_data = [
     } 
 ]
 
-# Track user progress
+
+# --- Track user progress ---
 user_data = {}
 
-# /start command
+# --- /start command handler ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    user_data[user_id] = {"index": 0, "score": 0}
-    await send_quiz(update.effective_chat.id, context, user_id)
+    chat_id = update.effective_chat.id
 
-# Send quiz question
+    user_data[user_id] = {
+        "index": 0,
+        "score": 0,
+        "chat_id": chat_id
+    }
+
+    await send_quiz(chat_id, context, user_id)
+
+# --- Function to send a quiz question ---
 async def send_quiz(chat_id, context: ContextTypes.DEFAULT_TYPE, user_id):
     index = user_data[user_id]["index"]
 
@@ -1127,7 +1133,7 @@ async def send_quiz(chat_id, context: ContextTypes.DEFAULT_TYPE, user_id):
         question = quiz_data[index]
         await context.bot.send_poll(
             chat_id=chat_id,
-            question=f"Q{index+1}: {question['question']}",
+            question=f"Q{index + 1}: {question['question']}",
             options=question["choices"],
             type='quiz',
             correct_option_id=question["answer"],
@@ -1141,7 +1147,7 @@ async def send_quiz(chat_id, context: ContextTypes.DEFAULT_TYPE, user_id):
         )
         del user_data[user_id]
 
-# Handle quiz answer
+# --- Handler for poll answers ---
 async def handle_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     poll_answer = update.poll_answer
     user_id = poll_answer.user.id
@@ -1155,15 +1161,18 @@ async def handle_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE)
             user_data[user_id]["score"] += 1
 
         user_data[user_id]["index"] += 1
-        await send_quiz(user_id, context, user_id)
+        chat_id = user_data[user_id]["chat_id"]
 
-# Replace with your actual token
+        await send_quiz(chat_id, context, user_id)
+
+# --- Replace with your actual bot token ---
 TOKEN = "8042821970:AAHsCv3OoKKf-JkyNzb9-kuJpPpehK-kgbI"
 
-
+# --- Build and run the bot ---
 app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(PollAnswerHandler(handle_poll_answer))
 
 print("🤖 Bot is running...")
 app.run_polling()
+
